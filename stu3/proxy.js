@@ -152,10 +152,34 @@ Proxy.prototype.create = function(type, resource) {
  * Search the resource type based on some filter criteria
  * @method
  * @param type The name of a resource type (e.g. "Patient")
- * @param [parameters] URL parameters as defined for the particular interaction
+ * @param [Object.<string, string>] URL parameters as defined for the particular interaction. Key is parameter name, value is param value
+ * @param [compartmentType]
+ * @param [compartmentId]
  */
-Proxy.prototype.search = function(type, parameters) {
+Proxy.prototype.search = function(type, parameters, compartmentType, compartmentId) {
+    if ((compartmentType && !compartmentId) || (!compartmentType && compartmentId)) {
+        throw 'Compartmental searches must include both compartment type AND id';
+    }
+
     var requestUrl = url.join(this._baseAddress, type);
+
+    if (compartmentType && compartmentId) {
+        requestUrl = url.join(this._baseAddress, compartmentType, compartmentId, type);
+    }
+
+    if (parameters && typeof parameters === 'object') {
+        var paramKeys = Object.keys(parameters);
+        var parts = [];
+
+        for (var i in paramKeys) {
+            var paramKey = encodeURIComponent(paramKeys[i]);
+            var paramValue = encodeURIComponent(parameters[paramKey]);
+
+            parts.push(paramKey + '=' + paramValue);
+        }
+
+        requestUrl += '?' + parts.join('&');
+    }
 
     var options = {
         method: 'GET',
@@ -271,8 +295,8 @@ Proxy.prototype._genericRequest = function(options, body) {
     delete options.url;
 
     requestMethod(requestUrl, options, function(error, response, body) {
-        if (this.afterResponse) {
-            this.afterResponse(response.headers, body);
+        if (self.afterResponse) {
+            self.afterResponse(response.headers, body);
         }
 
         if (error) {
