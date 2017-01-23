@@ -278,6 +278,22 @@ var Fhir = function(version) {
         var validator = new JsValidator(profiles);
         return validator.Validate(obj, profile);
     };
+
+    /**
+     * Instantiates a proxy class that can be used to perform operations on the specified FHIR server.
+     * @param serverBaseUrl The base url of the FHIR server
+     * @param requestWithXml Converts all JS resources to XML prior to sending them to the server. For cases where the server does not support JSON
+     * @returns {module:stu3.Proxy}
+     */
+    self.GetServerProxy = function(serverBaseUrl, requestWithXml) {
+        switch (version) {
+            case Fhir.STU3:
+                var Proxy = require('./stu3/proxy');
+                return new Proxy(self, serverBaseUrl, requestWithXml);
+            default:
+                throw 'This module does not support a server proxy for FHIR ' + version;
+        }
+    };
 };
 
 /**

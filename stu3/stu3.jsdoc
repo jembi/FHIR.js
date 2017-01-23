@@ -1,3 +1,16 @@
 /**
  * @module stu3
  **/
+
+ /**
+  * Callback function that is executed before a request is sent to the FHIR server.
+  * @callback BeforeRequestEvent
+  * @param {Object.<string, object>} headers HTTP headers sent in the request
+  */
+
+ /**
+  * Callback function that is executed after a responsne is received from the FHIR server, but before the response is returned to the caller
+  * @callback AfterResponseEvent
+  * @param {Object.<string, string>} headers HTTP headers returned in the response
+  * @param {object} resource The resource (including a Bundle, if applicable) returned by the server
+  */
